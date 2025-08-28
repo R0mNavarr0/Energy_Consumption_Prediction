@@ -1,21 +1,15 @@
 import bentoml
 import pandas as pd
 import numpy as np
-from pydantic import BaseModel, Field, validator
+from pydantic import BaseModel, Field
 
 class EnergyInput(BaseModel):
     PropertyGFATotal: float = Field(..., example=10000)
     PropertyGFABuilding_s: float = Field(..., example=8000)
     LargestPropertyUseTypeGFA: float = Field(..., example=6000)
-    Electricity_Part: float = Field(..., example=70)
-    NaturalGas_Part: float = Field(..., example=30)
+    Electricity_Part: float = Field(..., example=70, le=100, ge=0)
+    NaturalGas_Part: float = Field(..., example=30, le=100, ge=0)
     BuildingAge: float = Field(..., example=20)
-
-    @validator('Electricity_Part', 'NaturalGas_Part')
-    def check_percentage(cls, v):
-        if not (0 <= v <= 100):
-            raise ValueError('Must be between 0 and 100')
-        return v
 
 @bentoml.service
 class EnerygyCO2Service:
@@ -32,6 +26,6 @@ class EnerygyCO2Service:
         X_energy = pd.DataFrame(y_pred_energy, columns=["SiteEnergyUseWN(kBtu)"])
         y_pred_co2 = self.co2_runner.predict(X_energy)
         return {
-        "predicted_energy": float(np.expm1(y_pred_energy[0])),
-        "predicted_co2": float(np.expm1(y_pred_co2[0]))
+        "Energy consumption (Kbtu)": float(np.expm1(y_pred_energy[0])),
+        "CO2 emissions (Metric tons)": float(np.expm1(y_pred_co2[0]))
     }
