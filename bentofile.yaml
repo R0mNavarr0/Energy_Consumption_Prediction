@@ -1,0 +1,16 @@
+service: "service:EnergyCO2Service"
+
+include:
+  - "service.py"
+# Définition des modèles utilisés par le service
+models:
+  - "energy_consumption_model_light:epy5jnmee2j44aav"
+  - "c02_emissions_model:aom7at4csoiheaav"
+
+python:
+  packages:
+    - "pandas"
+    - "numpy"
+    - "scikit-learn"
+    - "pydantic"
+    - "xgboost"
